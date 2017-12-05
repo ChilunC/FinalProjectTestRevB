@@ -9,7 +9,7 @@ from keras.layers import Dense, Dropout, Flatten, Activation, Input
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
 import matplotlib
-matplotlib.use("gtk")
+#matplotlib.use("gtk")
 from matplotlib import pyplot as plt
 
 from vis.visualization import visualize_saliency
