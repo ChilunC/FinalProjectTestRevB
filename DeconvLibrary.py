@@ -43,13 +43,17 @@ class DConvolution2D(object):
         self.layer = layer
 
         weights = layer.get_weights()
+        print("weights")
+        print(type(weights))
         W = weights[0]
         b = weights[1]
-
+        print(type(W))
         # Set up_func for DConvolution2D
-        nb_up_filter = W.shape[0]
-        nb_up_row = W.shape[2]
-        nb_up_col = W.shape[3]
+        print("W")
+        print(W.shape)
+        nb_up_filter = W.shape[3]
+        nb_up_row = W.shape[0]
+        nb_up_col = W.shape[1]
         input = Input(shape=layer.input_shape[1:])
         output = Convolution2D(
             nb_filter=nb_up_filter,
@@ -58,15 +62,23 @@ class DConvolution2D(object):
             border_mode='same',
             weights=[W, b]
         )(input)
-        self.up_func = K.function([input, K.learning_phase()], output)
+        #self.up_func = K.function([input, K.learning_phase()], output)
+        self.up_func = K.function([input, K.learning_phase()], [output])
 
         # Flip W horizontally and vertically,
         # and set down_func for DConvolution2D
-        W = np.transpose(W, (1, 0, 2, 3))
-        W = W[:, :, ::-1, ::-1]
-        nb_down_filter = W.shape[0]
-        nb_down_row = W.shape[2]
-        nb_down_col = W.shape[3]
+        print(W.shape)
+        #W = np.transpose(W, (1, 0, 2, 3))
+       # W = W[:, :, ::-1, ::-1]
+        W = np.flip(W,0)
+        W = np.flip(W,1)
+        print(W.shape)
+        print("layer")
+        print(layer.input_shape[1:])
+        print(layer.output_shape[1:])
+        nb_down_filter = W.shape[3]
+        nb_down_row = W.shape[0]
+        nb_down_col = W.shape[1]
         b = np.zeros(nb_down_filter)
         input = Input(shape=layer.output_shape[1:])
         output = Convolution2D(
@@ -76,7 +88,7 @@ class DConvolution2D(object):
             border_mode='same',
             weights=[W, b]
         )(input)
-        self.down_func = K.function([input, K.learning_phase()], output)
+        self.down_func = K.function([input, K.learning_phase()], [output])
 
     def up(self, data, learning_phase=0):
         '''
@@ -422,6 +434,7 @@ def visualize(model, data, layer_name, feature_to_visualize, visualize_mode):
     deconv_layers = []
     # Stack layers
     for i in range(len(model.layers)):
+        print(model.layers[i])
         if isinstance(model.layers[i], Convolution2D):
             deconv_layers.append(DConvolution2D(model.layers[i]))
             deconv_layers.append(
@@ -482,7 +495,7 @@ def visualize(model, data, layer_name, feature_to_visualize, visualize_mode):
 def argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dry-run', action='store_true')
-    parser.add_argument('--image', help='Path of image to visualize')
+    parser.add_argument('--image', help='Path of image to visualize', default='LunPhoto.png')
     parser.add_argument('--layer_name', '-l',
                         action='store', dest='layer_name',
                         default='block5_conv3', help='Layer to visualize')

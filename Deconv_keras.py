@@ -1,24 +1,30 @@
 from DeconvLibrary import *
-
+from keras.models import load_model
 
 parser = argparser()
 args = parser.parse_args()
 image_path = args.image
-print("hahaha")
+#print(image_path)
+#print("hahaha")
 layer_name = args.layer_name
 feature_to_visualize = args.feature
 visualize_mode = args.mode
 
-model = vgg16.VGG16(weights='imagenet', include_top=True)
-layer_dict = dict([(layer.name, layer) for layer in model.layers])
-if not layer_dict.has_key(layer_name):
-    print('Wrong layer name')
-    sys.exit()
-
+model = load_model('saved_models/keras_cifar10_trained_model.h5')#vgg16.VGG16(weights='imagenet', include_top=True)
+#layer_dict = dict([(layer.name, layer) for layer in model.layers])
+#if not layer_dict.has_key(layer_name):
+#    print('Wrong layer name')
+#    sys.exit()
+size = 224,224
 # Load data and preprocess
 img = Image.open(image_path)
-img = img.resize(224, 224)
+
+#img = img.resize(224, 224)
+img.thumbnail(size, Image.ANTIALIAS)
+#print(img)
 img_array = np.array(img)
+#print(img_array)
+#img_array = np.transpose(img_array)
 img_array = np.transpose(img_array, (2, 0, 1))
 img_array = img_array[np.newaxis, :]
 img_array = img_array.astype(np.float)
