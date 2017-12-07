@@ -145,7 +145,8 @@ net = Net()
 
 import torch.optim as optim
 
-criterion = nn.CrossEntropyLoss()
+#criterion = nn.CrossEntropyLoss()
+criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 ########################################################################
