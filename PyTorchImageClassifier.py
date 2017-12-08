@@ -58,27 +58,162 @@ Using ``torchvision``, it’s extremely easy to load CIFAR10.
 import torch
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data import Dataset, DataLoader, TensorDataset
+from torchvision import transforms, utils
+import pandas as pd
+import os
+from skimage import io, transform
+import PIL
+from PIL import Image
+
+class Rescale(object):
+    """Rescale the image in a sample to a given size.
+
+    Args:
+        output_size (tuple or tuple): Desired output size. If tuple, output is
+            matched to output_size. If int, smaller of image edges is matched
+            to output_size keeping aspect ratio the same.
+    """
+
+    def __init__(self, output_size):
+        assert isinstance(output_size, (int, tuple))
+        self.output_size = output_size
+
+    def __call__(self, sample):
+        image, landmarks = sample['image'], sample['landmarks']
+
+        h, w = image.shape[:2]
+        if isinstance(self.output_size, int):
+            if h > w:
+                new_h, new_w = self.output_size * h / w, self.output_size
+            else:
+                new_h, new_w = self.output_size, self.output_size * w / h
+        else:
+            new_h, new_w = self.output_size
+
+        new_h, new_w = int(new_h), int(new_w)
+
+        img = transform.resize(image, (new_h, new_w))
+
+        # h and w are swapped for landmarks because for images,
+        # x and y axes are axis 1 and 0 respectively
+        landmarks = landmarks * [new_w / w, new_h / h]
+
+        return {'image': img, 'landmarks': landmarks}
+
+
+class RandomCrop(object):
+    """Crop randomly the image in a sample.
+
+    Args:
+        output_size (tuple or int): Desired output size. If int, square crop
+            is made.
+    """
+
+    def __init__(self, output_size):
+        assert isinstance(output_size, (int, tuple))
+        if isinstance(output_size, int):
+            self.output_size = (output_size, output_size)
+        else:
+            assert len(output_size) == 2
+            self.output_size = output_size
+
+    def __call__(self, sample):
+        image, landmarks = sample['image'], sample['landmarks']
+
+        h, w = image.shape[:2]
+        new_h, new_w = self.output_size
+
+        top = np.random.randint(0, h - new_h)
+        left = np.random.randint(0, w - new_w)
+
+        image = image[top: top + new_h,
+                      left: left + new_w]
+
+        landmarks = landmarks - [left, top]
+
+        return {'image': image, 'landmarks': landmarks}
+
+
+class ToTensor(object):
+    """Convert ndarrays in sample to Tensors."""
+
+    def __call__(self, sample):
+        image, landmarks = sample
+
+        # swap color axis because
+        # numpy image: H x W x C
+        # torch image: C X H X W
+        image = image.transpose((2, 0, 1))
+        return (torch.from_numpy(image),
+                torch.from_numpy(landmarks))
+
+
+class FaceLandmarksDataset(Dataset):
+    """Face Landmarks dataset."""
+
+    def __init__(self, csv_file, root_dir, transform=None):
+        """
+        Args:
+            csv_file (string): Path to the csv file with annotations.
+            root_dir (string): Directory with all the images.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.landmarks_frame = pd.read_csv(csv_file)
+        self.root_dir = root_dir
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.landmarks_frame)
+
+    def __getitem__(self, idx):
+        img_name = os.path.join(self.root_dir, self.landmarks_frame.ix[idx, 0]+'.jpg')
+        #print(img_name)
+        #image = io.imread(img_name)
+        image = Image.open(img_name)
+        image = np.array(image)
+        image = np.rollaxis(image,2,0)
+
+        #image.astype(int)
+        landmarks = self.landmarks_frame.ix[idx, 1:].as_matrix().astype('float')
+        #landmarks = landmarks.reshape(-1, 2)
+        image = np.array(image).astype(np.float32)
+        landmarks = np.array(landmarks).astype(np.int)
+        #print("landmarks.shape")
+        #print(landmarks.shape)
+        #landmarks.astype(int)
+        #sample = {'image': image, 'landmarks': landmarks}
+        #sample = (image,landmarks)
+        if self.transform:
+            sample = self.transform(image)
+        sample = (image, landmarks)
+        return image, landmarks #sample
+
+
+
 
 ########################################################################
 # The output of torchvision datasets are PILImage images of range [0, 1].
 # We transform them to Tensors of normalized range [-1, 1]
 
 transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    [transforms.ToTensor()])
+     #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                        download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                          shuffle=True, num_workers=2)
+#trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+#                                        download=True, transform=transform)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                       download=True, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                         shuffle=False, num_workers=2)
+#trainloaderC = torch.utils.data.DataLoader(trainset, batch_size=4,
+#                                          shuffle=True, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+#testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+#                                       download=True, transform=transform)
+#testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+#                                         shuffle=False, num_workers=2)
+
+#classes = ('plane', 'car', 'bird', 'cat',
+#           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 ########################################################################
 # Let us show some of the training images, for fun.
@@ -94,15 +229,67 @@ def imshow(img):
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
+#landmarks_frame = pd.read_csv('joints/joints.csv')
+#landmarks = landmarks_frame.ix[n, 1:].as_matrix().astype('float')
+#landmarks = landmarks.reshape(-1, 2)
 
+#face_dataset_train = FaceLandmarksDataset(csv_file='jointsTrain.csv',
+#                                    root_dir='joints/')
+#face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
+#                                    root_dir='joints/')
+
+#trainloader = DataLoader(face_dataset_train, batch_size=4,
+#                        shuffle=True, num_workers=2)
+#testloader = DataLoader(face_dataset_test, batch_size=4,
+#                        shuffle=True, num_workers=2)
+
+#print(landmarks_frame)
 # get some random training images
+#print(trainloader)
+
+#scale = Rescale(32)
+#crop = RandomCrop(128)
+#composed = transforms.Compose([Rescale(32),
+#                               RandomCrop(224)])
+
+face_dataset_train = FaceLandmarksDataset(csv_file='jointsTrain.csv',
+                                           root_dir='joints/',
+                                           transform=None #transforms.Compose([
+                                               #transform.Rescale(32),
+                                               #RandomCrop(32),
+                                               #ToTensor()
+                                           )
+#print("Facedataset")
+#print(face_dataset_train)
+face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
+                                           root_dir='joints/',
+                                           transform=None #.Compose([
+                                               #Rescale(32),
+                                               #RandomCrop(32),
+                                               #ToTensor()
+                                           )
+trainloader = DataLoader(face_dataset_train, batch_size=1,
+                        shuffle=True, num_workers=2)
+testloader = DataLoader(face_dataset_test, batch_size=1,
+                        shuffle=True, num_workers=2)
+
+#dataiter = iter(trainloaderC)
+#images, labels = dataiter.next()
+#print("image type data")
+#print(type(images))
+#print(images.shape)
+
 dataiter = iter(trainloader)
 images, labels = dataiter.next()
-
+#print("fromiter")
+#print(labels)
+#print(images)
+#print(images['image'])
+#print(labels)
 # show images
 imshow(torchvision.utils.make_grid(images))
 # print labels
-print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
+#print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
 
 
 ########################################################################
@@ -124,7 +311,7 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
+        self.fc3 = nn.Linear(84, 28)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -147,6 +334,7 @@ import torch.optim as optim
 
 #criterion = nn.CrossEntropyLoss()
 criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
+
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 ########################################################################
@@ -163,16 +351,25 @@ for epoch in range(2):  # loop over the dataset multiple times
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
-
+        #labels = torch.squeeze(labels,1)
+        #labels = torch.squeeze(labels, 1)
+        #labels = torch.squeeze(labels, 1)
+        #print("labels")
+        #print(labels.size())
+        #print(inputs.size())
+        #inputs.type(torch.ByteTensor)
         # wrap them in Variable
         inputs, labels = Variable(inputs), Variable(labels)
-
+        #labels = labels[0,:]
+        #print("after try")
+        #print(labels)
+        #print(type(inputs))
         # zero the parameter gradients
         optimizer.zero_grad()
 
         # forward + backward + optimize
         outputs = net(inputs)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, labels.type('torch.FloatTensor'))
         loss.backward()
         optimizer.step()
 
@@ -184,6 +381,7 @@ for epoch in range(2):  # loop over the dataset multiple times
             running_loss = 0.0
 
 print('Finished Training')
+torch.save(net,'net.pt')
 
 ########################################################################
 # 5. Test the network on the test data
@@ -200,10 +398,11 @@ print('Finished Training')
 
 dataiter = iter(testloader)
 images, labels = dataiter.next()
-
+print("labels")
+print(type(labels))
 # print images
 imshow(torchvision.utils.make_grid(images))
-print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+print('GroundTruth: ', ' '.join('%5s' % labels[j] for j in range(4)))
 
 ########################################################################
 # Okay, now let us see what the neural network thinks these examples above are:
@@ -217,7 +416,7 @@ outputs = net(Variable(images))
 # So, let's get the index of the highest energy:
 _, predicted = torch.max(outputs.data, 1)
 
-print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
+print('Predicted: ', ' '.join(classes[predicted[j]]
                               for j in range(4)))
 
 ########################################################################
