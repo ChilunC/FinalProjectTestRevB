@@ -10,6 +10,7 @@ import numpy as np
 print("what?")
 import torch
 from torch.autograd import Variable
+from PyTModel import *
 print("hehe")
 import torchvision.transforms
 from torchvision import models
@@ -180,7 +181,11 @@ def get_params(example_index):
     # Process image
     prep_img = preprocess_image(original_image)
     # Define model
-    pretrained_model = models.vgg19(pretrained=True)
+    #pretrained_model = net.load_state_dict(torch.load('net.pth'))#models.vgg19(pretrained=True)
+    pretrained_model = Net()
+
+    pretrained_model.load_state_dict(torch.load('net.pth'))  # models.vgg19(pretrained=True)
+    print(pretrained_model)
     return (original_image,
             prep_img,
             target_class,

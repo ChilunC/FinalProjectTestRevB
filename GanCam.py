@@ -8,6 +8,7 @@ import numpy as np
 import torch
 print("what")
 from misc_functions import get_params, save_class_activation_on_image
+from PyTModel import *
 print("hello")
 
 class CamExtractor():

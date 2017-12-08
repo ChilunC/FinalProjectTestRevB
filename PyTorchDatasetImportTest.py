@@ -303,7 +303,9 @@ class ToTensor(object):
 # ``torchvision.transforms.Compose`` is a simple callable class which allows us
 # to do this.
 #
-
+print("something")
+wait = input("PRESS ENTER TO CONTINUE.")
+print("something")
 scale = Rescale(32)
 crop = RandomCrop(32)
 composed = transforms.Compose([Rescale(256),
@@ -321,6 +323,8 @@ for i, tsfrm in enumerate([scale, crop, composed]):
     show_landmarks(**transformed_sample)
 
 plt.show()
+
+
 
 ######################################################################
 # Iterating through the dataset
