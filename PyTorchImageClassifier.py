@@ -330,7 +330,12 @@ for param in net.parameters():
     param.requires_grad = False
     # Replace the last fully-connected layer
     # Parameters of newly constructed modules have requires_grad=True by default
-net.fc = nn.Linear(512, 28) # assuming that the fc7 layer has 512 neurons, otherwise change it
+mod = list(net.classifier.children())
+mod.pop()
+mod.append(torch.nn.Linear(4096,28))
+new_classifier = torch.nn.Sequential(*mod)
+net.classifier = new_classifier
+#net.features[-1] = nn.Linear(4096, 28) # assuming that the fc7 layer has 512 neurons, otherwise change it
 #net = Net()
 
 ########################################################################
@@ -343,7 +348,7 @@ import torch.optim as optim
 #criterion = nn.CrossEntropyLoss()
 criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
 
-optimizer = optim.SGD(net.fc.parameters(), lr=0.000001, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=0.000001, momentum=0.9)
 
 ########################################################################
 # 4. Train the network
@@ -368,6 +373,9 @@ for epoch in range(2):  # loop over the dataset multiple times
         #inputs.type(torch.ByteTensor)
         # wrap them in Variable
         inputs, labels = Variable(inputs), Variable(labels)
+        #print("inputs")
+        #print(inputs)
+        # print(labels)
         #labels = labels[0,:]
         #print("after try")
         #print(labels)
@@ -377,6 +385,7 @@ for epoch in range(2):  # loop over the dataset multiple times
 
         # forward + backward + optimize
         outputs = net(inputs)
+        print(outputs)
         loss = 0
         for o in range(len(outputs)):
             loss += criterion(outputs[o], labels[o].type('torch.FloatTensor'))

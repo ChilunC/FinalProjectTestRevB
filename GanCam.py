@@ -29,8 +29,12 @@ class CamExtractor():
         """
         conv_output = None
         for module_pos, module in self.model.features._modules.items():
+        #for module_pos, module in self.model._modules.items():
+            #print("module_pos")
+            #print(module_pos)
             x = module(x)  # Forward
-            if int(module_pos) == self.target_layer:
+
+            if module_pos == self.target_layer:
                 x.register_hook(self.save_gradient)
                 conv_output = x  # Save the convolution output on that layer
         return conv_output, x

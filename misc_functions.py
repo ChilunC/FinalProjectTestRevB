@@ -181,10 +181,18 @@ def get_params(example_index):
     # Process image
     prep_img = preprocess_image(original_image)
     # Define model
-    #pretrained_model = net.load_state_dict(torch.load('net.pth'))#models.vgg19(pretrained=True)
-    pretrained_model = Net()
+
+    pretrained_model = models.vgg19()#Net()
+    mod = list(pretrained_model.classifier.children())
+    mod.pop()
+    mod.append(torch.nn.Linear(4096, 28))
+    new_classifier = torch.nn.Sequential(*mod)
+    pretrained_model.classifier = new_classifier
 
     pretrained_model.load_state_dict(torch.load('net.pth'))  # models.vgg19(pretrained=True)
+    print(pretrained_model)
+    #pretrained_model= models.vgg19(pretrained=True)
+    #pretrained_model = models.resnet18(pretrained=True)
     print(pretrained_model)
     return (original_image,
             prep_img,
