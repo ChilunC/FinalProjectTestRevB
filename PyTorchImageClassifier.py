@@ -335,6 +335,8 @@ mod.pop()
 mod.append(torch.nn.Linear(4096,28))
 new_classifier = torch.nn.Sequential(*mod)
 net.classifier = new_classifier
+if torch.cuda.is_available():
+    net.cuda()
 #net.features[-1] = nn.Linear(4096, 28) # assuming that the fc7 layer has 512 neurons, otherwise change it
 #net = Net()
 
@@ -372,7 +374,10 @@ for epoch in range(2):  # loop over the dataset multiple times
         #print(inputs.size())
         #inputs.type(torch.ByteTensor)
         # wrap them in Variable
-        inputs, labels = Variable(inputs), Variable(labels)
+        if torch.cuda.is_available():
+            inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+        else:
+            inputs, labels = Variable(inputs), Variable(labels)
         #print("inputs")
         #print(inputs)
         # print(labels)
