@@ -45,7 +45,7 @@ def save_gradient_images(gradient, file_name):
     gradient = gradient - gradient.min()
     gradient /= gradient.max()
     gradient = np.uint8(gradient * 255).transpose(1, 2, 0)
-    path_to_file = os.path.join('../results', file_name + '.jpg')
+    path_to_file = os.path.join('results', file_name+ '.jpg')
     # Convert RBG to GBR
     gradient = gradient[..., ::-1]
     cv2.imwrite(path_to_file, gradient)

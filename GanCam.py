@@ -32,6 +32,9 @@ class CamExtractor():
             if int(module_pos) == self.target_layer:
                 x.register_hook(self.save_gradient)
                 conv_output = x  # Save the convolution output on that layer
+                #print("Hmmm...")
+        #print("final")
+        #print(int(module_pos))
         return conv_output, x
 
     def forward_pass(self, x):

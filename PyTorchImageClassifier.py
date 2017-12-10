@@ -202,23 +202,23 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 
-#net = Net()
+net = NetFeat()
 
 
 #import a pretrained VGG19 model and replace the last layer with a custom layer
-net = torchvision.models.vgg19(pretrained=True)
-for param in net.features.parameters():
-    param.requires_grad = False
-for param in net.classifier.parameters():
-    param.requires_grad=False
+#net = torchvision.models.vgg19(pretrained=True)
+#for param in net.features.parameters():
+#    param.requires_grad = False
+#for param in net.classifier.parameters():
+#    param.requires_grad=False
     # Replace the last fully-connected layer
     # Parameters of newly constructed modules have requires_grad=True by default
-mod = list(net.classifier.children())
-mod.pop()
+#mod = list(net.classifier.children())
+#mod.pop()
 
-mod.append(torch.nn.Linear(4096,28))
-new_classifier = torch.nn.Sequential(*mod)
-net.classifier = new_classifier
+#mod.append(torch.nn.Linear(4096,28))
+#new_classifier = torch.nn.Sequential(*mod)
+#net.classifier = new_classifier
 if torch.cuda.is_available():
     net.cuda()
 #net.features[-1] = nn.Linear(4096, 28) # assuming that the fc7 layer has 512 neurons, otherwise change it
