@@ -1,60 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Training a classifier
-=====================
 
-This is it. You have seen how to define neural networks, compute loss and make
-updates to the weights of the network.
-
-Now you might be thinking,
-
-What about data?
-----------------
-
-Generally, when you have to deal with image, text, audio or video data,
-you can use standard python packages that load data into a numpy array.
-Then you can convert this array into a ``torch.*Tensor``.
-
--  For images, packages such as Pillow, OpenCV are useful.
--  For audio, packages such as scipy and librosa
--  For text, either raw Python or Cython based loading, or NLTK and
-   SpaCy are useful.
-
-Specifically for ``vision``, we have created a package called
-``torchvision``, that has data loaders for common datasets such as
-Imagenet, CIFAR10, MNIST, etc. and data transformers for images, viz.,
-``torchvision.datasets`` and ``torch.utils.data.DataLoader``.
-
-This provides a huge convenience and avoids writing boilerplate code.
-
-For this tutorial, we will use the CIFAR10 dataset.
-It has the classes: ‘airplane’, ‘automobile’, ‘bird’, ‘cat’, ‘deer’,
-‘dog’, ‘frog’, ‘horse’, ‘ship’, ‘truck’. The images in CIFAR-10 are of
-size 3x32x32, i.e. 3-channel color images of 32x32 pixels in size.
-
-.. figure:: /_static/img/cifar10.png
-   :alt: cifar10
-
-   cifar10
-
-
-Training an image classifier
-----------------------------
-
-We will do the following steps in order:
-
-1. Load and normalizing the CIFAR10 training and test datasets using
-   ``torchvision``
-2. Define a Convolution Neural Network
-3. Define a loss function
-4. Train the network on the training data
-5. Test the network on the test data
-
-1. Loading and normalizing CIFAR10
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Using ``torchvision``, it’s extremely easy to load CIFAR10.
-"""
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -66,6 +10,8 @@ from skimage import io, transform
 import PIL
 from PIL import Image
 from PyTModel import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Rescale(object):
     """Rescale the image in a sample to a given size.
@@ -149,7 +95,7 @@ class ToTensor(object):
         return (torch.from_numpy(image),
                 torch.from_numpy(landmarks))
 
-
+#import dataset from .csv file referencing the image and the points for the joints in the image
 class FaceLandmarksDataset(Dataset):
     """Face Landmarks dataset."""
 
@@ -193,13 +139,7 @@ class FaceLandmarksDataset(Dataset):
         print(image.shape)
         return image, landmarks #sample
 
-
-
-
-########################################################################
-# The output of torchvision datasets are PILImage images of range [0, 1].
-# We transform them to Tensors of normalized range [-1, 1]
-
+#transform image to fit the VGG19 model
 data_transforms = {
     'train': transforms.Compose([
         #transforms.RandomSizedCrop(224),
@@ -215,61 +155,16 @@ data_transforms = {
     ]),
 }
 
-transform = transforms.Compose(
-    [transforms.ToTensor()])
-     #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-#trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-#                                        download=True, transform=transform)
 
-#trainloaderC = torch.utils.data.DataLoader(trainset, batch_size=4,
-#                                          shuffle=True, num_workers=2)
-
-#testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-#                                       download=True, transform=transform)
-#testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-#                                         shuffle=False, num_workers=2)
-
-#classes = ('plane', 'car', 'bird', 'cat',
-#           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-########################################################################
-# Let us show some of the training images, for fun.
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 # functions to show an image
-
-
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
-#landmarks_frame = pd.read_csv('joints/joints.csv')
-#landmarks = landmarks_frame.ix[n, 1:].as_matrix().astype('float')
-#landmarks = landmarks.reshape(-1, 2)
-
-#face_dataset_train = FaceLandmarksDataset(csv_file='jointsTrain.csv',
-#                                    root_dir='joints/')
-#face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
-#                                    root_dir='joints/')
-
-#trainloader = DataLoader(face_dataset_train, batch_size=4,
-#                        shuffle=True, num_workers=2)
-#testloader = DataLoader(face_dataset_test, batch_size=4,
-#                        shuffle=True, num_workers=2)
-
-#print(landmarks_frame)
-# get some random training images
-#print(trainloader)
-
-#scale = Rescale(32)
-#crop = RandomCrop(128)
-#composed = transforms.Compose([Rescale(32),
-#                               RandomCrop(224)])
-
+#get training dataset
 face_dataset_train = FaceLandmarksDataset(csv_file='jointsTrain.csv',
                                            root_dir='fulljoints/',
                                            transform=data_transforms['train'] #transforms.Compose([
@@ -277,8 +172,7 @@ face_dataset_train = FaceLandmarksDataset(csv_file='jointsTrain.csv',
                                                #RandomCrop(32),
                                                #ToTensor()
                                            )
-#print("Facedataset")
-#print(face_dataset_train)
+#get test dataset
 face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
                                            root_dir='fulljoints/',
                                            transform=data_transforms['val'] #.Compose([
@@ -286,52 +180,42 @@ face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
                                                #RandomCrop(32),
                                                #ToTensor()
                                            )
+
 trainloader = DataLoader(face_dataset_train, batch_size=4,
                         shuffle=True, num_workers=2)
 testloader = DataLoader(face_dataset_test, batch_size=4,
                         shuffle=True, num_workers=2)
 
-#dataiter = iter(trainloaderC)
-#images, labels = dataiter.next()
-#print("image type data")
-#print(type(images))
-#print(images.shape)
-print(trainloader)
+
+#print(trainloader)
 dataiter = iter(trainloader)
-print(dataiter)
 images, labels = dataiter.next()
-print(images)
-#print("fromiter")
-#print(labels)
-#print(images)
-#print(images['image'])
-#print(labels)
+
 # show images
 imshow(torchvision.utils.make_grid(images))
 # print labels
 #print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
 
 
-########################################################################
-# 2. Define a Convolution Neural Network
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# Copy the neural network from the Neural Networks section before and modify it to
-# take 3-channel images (instead of 1-channel images as it was defined).
 
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 
+#net = Net()
 
 
-
+#import a pretrained VGG19 model and replace the last layer with a custom layer
 net = torchvision.models.vgg19(pretrained=True)
-for param in net.parameters():
+for param in net.features.parameters():
     param.requires_grad = False
+for param in net.classifier.parameters():
+    param.requires_grad=False
     # Replace the last fully-connected layer
     # Parameters of newly constructed modules have requires_grad=True by default
 mod = list(net.classifier.children())
 mod.pop()
+
 mod.append(torch.nn.Linear(4096,28))
 new_classifier = torch.nn.Sequential(*mod)
 net.classifier = new_classifier
@@ -350,7 +234,7 @@ import torch.optim as optim
 #criterion = nn.CrossEntropyLoss()
 criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
 
-optimizer = optim.SGD(net.parameters(), lr=0.000001, momentum=0.9)
+optimizer = optim.SGD(net.classifier[-1].parameters(), lr=0.0001, momentum=0.9)
 
 ########################################################################
 # 4. Train the network
@@ -405,7 +289,7 @@ for epoch in range(2):  # loop over the dataset multiple times
             running_loss = 0.0
 
 print('Finished Training')
-torch.save(net.state_dict(),'net.pth')
+torch.save(net.state_dict(),'netLun.pth')
 
 ########################################################################
 # 5. Test the network on the test data
@@ -451,10 +335,13 @@ torch.save(net.state_dict(),'net.pth')
 
 correct = 0
 total = 0
-for data in testloader:
+#for data in testloader:
+for i, data in enumerate(testloader, 0):
     images, labels = data
     target_var = torch.autograd.Variable(labels,volatile=True)
     input_var = torch.autograd.Variable(images,volatile=True)
+
+    #optimizer.zero_grad()
     outputs = net(input_var)
     score_map = outputs[-1].data
     #_, predicted = torch.max(outputs.data, 1)
@@ -497,64 +384,3 @@ for data in testloader:
 for i in range(10):
     print('Accuracy of %5s : %2d %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
-
-########################################################################
-# Okay, so what next?
-#
-# How do we run these neural networks on the GPU?
-#
-# Training on GPU
-# ----------------
-# Just like how you transfer a Tensor on to the GPU, you transfer the neural
-# net onto the GPU.
-# This will recursively go over all modules and convert their parameters and
-# buffers to CUDA tensors:
-#
-# .. code:: python
-#
-#     net.cuda()
-#
-#
-# Remember that you will have to send the inputs and targets at every step
-# to the GPU too:
-#
-# ::
-#
-#         inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-#
-# Why dont I notice MASSIVE speedup compared to CPU? Because your network
-# is realllly small.
-#
-# **Exercise:** Try increasing the width of your network (argument 2 of
-# the first ``nn.Conv2d``, and argument 1 of the second ``nn.Conv2d`` –
-# they need to be the same number), see what kind of speedup you get.
-#
-# **Goals achieved**:
-#
-# - Understanding PyTorch's Tensor library and neural networks at a high level.
-# - Train a small neural network to classify images
-#
-# Training on multiple GPUs
-# -------------------------
-# If you want to see even more MASSIVE speedup using all of your GPUs,
-# please check out :doc:`data_parallel_tutorial`.
-#
-# Where do I go next?
-# -------------------
-#
-# -  :doc:`Train neural nets to play video games </intermediate/reinforcement_q_learning>`
-# -  `Train a state-of-the-art ResNet network on imagenet`_
-# -  `Train an face generator using Generative Adversarial Networks`_
-# -  `Train a word-level language model using Recurrent LSTM networks`_
-# -  `More examples`_
-# -  `More tutorials`_
-# -  `Discuss PyTorch on the Forums`_
-# -  `Chat with other users on Slack`_
-#
-# .. _Train a state-of-the-art ResNet network on imagenet: https://github.com/pytorch/examples/tree/master/imagenet
-# .. _Train an face generator using Generative Adversarial Networks: https://github.com/pytorch/examples/tree/master/dcgan
-# .. _Train a word-level language model using Recurrent LSTM networks: https://github.com/pytorch/examples/tree/master/word_language_model
-# .. _More examples: https://github.com/pytorch/examples
-# .. _More tutorials: https://github.com/pytorch/tutorials
-# .. _Discuss PyTorch on the Forums: https://discuss.pytorch.org/
-# .. _Chat with other users on Slack: http://pytorch.slack.com/messages/beginner/

@@ -164,7 +164,7 @@ def get_params(example_index):
         pretrained_model(Pytorch model): Model to use for the operations
     """
     # Pick one of the examples
-    example_list = [['input_images/im0016.jpg', 56],
+    example_list = [['input_images/im0016.jpg', 27],
                     ['input_images/snake.jpg', 56],
                     ['input_images/cat_dog.png', 243],
                     ['input_images/spider.png', 72],
@@ -189,11 +189,12 @@ def get_params(example_index):
     new_classifier = torch.nn.Sequential(*mod)
     pretrained_model.classifier = new_classifier
 
-    pretrained_model.load_state_dict(torch.load('net.pth'))  # models.vgg19(pretrained=True)
-    print(pretrained_model)
+    #pretrained_model.load_state_dict(torch.load('net.pth'))  # models.vgg19(pretrained=True)
+    pretrained_model.load_state_dict(torch.load('net.pth', map_location=lambda storage, loc: storage))
+    #print(pretrained_model)
     #pretrained_model= models.vgg19(pretrained=True)
     #pretrained_model = models.resnet18(pretrained=True)
-    print(pretrained_model)
+    #print(pretrained_model)
     return (original_image,
             prep_img,
             target_class,

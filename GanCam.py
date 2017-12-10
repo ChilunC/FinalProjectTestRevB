@@ -1,15 +1,14 @@
 """
 Created on Thu Oct 26 11:06:51 2017
-c
+
 @author: Utku Ozbulak - github.com/utkuozbulak
 """
 import cv2
 import numpy as np
 import torch
-print("what")
+
 from misc_functions import get_params, save_class_activation_on_image
-from PyTModel import *
-print("hello")
+
 
 class CamExtractor():
     """
@@ -29,12 +28,8 @@ class CamExtractor():
         """
         conv_output = None
         for module_pos, module in self.model.features._modules.items():
-        #for module_pos, module in self.model._modules.items():
-            #print("module_pos")
-            #print(module_pos)
             x = module(x)  # Forward
-
-            if module_pos == self.target_layer:
+            if int(module_pos) == self.target_layer:
                 x.register_hook(self.save_gradient)
                 conv_output = x  # Save the convolution output on that layer
         return conv_output, x
