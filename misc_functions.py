@@ -51,7 +51,7 @@ def save_gradient_images(gradient, file_name):
     cv2.imwrite(path_to_file, gradient)
 
 
-def save_class_activation_on_image(org_img, activation_map, file_name):
+def save_class_activation_on_image(org_img, activation_map, file_name,actNum):
     """
         Saves cam activation map and activation map on the original image
 
@@ -61,17 +61,17 @@ def save_class_activation_on_image(org_img, activation_map, file_name):
         file_name (str): File name of the exported image
     """
     # Grayscale activation map
-    path_to_file = os.path.join('results', file_name+'_Cam_Grayscale.jpg')
+    path_to_file = os.path.join('results', file_name+"_"+str(actNum)+'_Cam_Grayscale.jpg')
     cv2.imwrite(path_to_file, activation_map)
     # Heatmap of activation map
     activation_heatmap = cv2.applyColorMap(activation_map, cv2.COLORMAP_HSV)
-    path_to_file = os.path.join('results', file_name+'_Cam_Heatmap.jpg')
+    path_to_file = os.path.join('results', file_name+"_"+str(actNum)+'_Cam_Heatmap.jpg')
     cv2.imwrite(path_to_file, activation_heatmap)
     # Heatmap on picture
     org_img = cv2.resize(org_img, (224, 224))
     img_with_heatmap = np.float32(activation_heatmap) + np.float32(org_img)
     img_with_heatmap = img_with_heatmap / np.max(img_with_heatmap)
-    path_to_file = os.path.join('results', file_name+'_Cam_On_Image.jpg')
+    path_to_file = os.path.join('results', file_name+"_"+str(actNum)+'_Cam_On_Image.jpg')
     cv2.imwrite(path_to_file, np.uint8(255 * img_with_heatmap))
 
 
@@ -164,13 +164,42 @@ def get_params(example_index):
         pretrained_model(Pytorch model): Model to use for the operations
     """
     # Pick one of the examples
-    example_list = [['input_images/im0016.jpg', 27],
-                    ['input_images/snake.jpg', 56],
-                    ['input_images/cat_dog.png', 243],
-                    ['input_images/spider.png', 72],
-                    ['input_images/apple.JPEG', 948],
-                    ['input_images/eel.JPEG', 390],
-                    ['input_images/bird.JPEG', 13]]
+    #example_list = [['input_images/im0016.jpg', 24],
+    #                ['input_images/snake.jpg', 56],
+    #                ['input_images/cat_dog.png', 243],
+    #                ['input_images/spider.png', 72],
+    #                ['input_images/apple.JPEG', 948],
+    #                ['input_images/eel.JPEG', 390],
+    #                ['input_images/bird.JPEG', 13]]
+
+    example_list = [['input_images/im0016.jpg', 0],
+                    ['input_images/im0016.jpg', 1],
+                    ['input_images/im0016.jpg', 2],
+                    ['input_images/im0016.jpg', 3],
+                    ['input_images/im0016.jpg', 4],
+                    ['input_images/im0016.jpg', 5],
+                    ['input_images/im0016.jpg', 6],
+                    ['input_images/im0016.jpg', 7],
+                    ['input_images/im0016.jpg', 8],
+                    ['input_images/im0016.jpg', 9],
+                    ['input_images/im0016.jpg', 10],
+                    ['input_images/im0016.jpg', 11],
+                    ['input_images/im0016.jpg', 12],
+                    ['input_images/im0016.jpg', 13],
+                    ['input_images/im0016.jpg', 14],
+                    ['input_images/im0016.jpg', 15],
+                    ['input_images/im0016.jpg', 16],
+                    ['input_images/im0016.jpg', 17],
+                    ['input_images/im0016.jpg', 18],
+                    ['input_images/im0016.jpg', 19],
+                    ['input_images/im0016.jpg', 20],
+                    ['input_images/im0016.jpg', 21],
+                    ['input_images/im0016.jpg', 22],
+                    ['input_images/im0016.jpg', 23],
+                    ['input_images/im0016.jpg', 24],
+                    ['input_images/im0016.jpg', 25],
+                    ['input_images/im0016.jpg', 26],
+                    ['input_images/im0016.jpg', 27],]
     selected_example = example_index
     img_path = example_list[selected_example][0]
     target_class = example_list[selected_example][1]
