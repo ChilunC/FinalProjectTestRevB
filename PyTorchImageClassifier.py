@@ -305,10 +305,10 @@ for epoch in range(2):  # loop over the dataset multiple times
             running_loss = 0.0
     running_loss_training = running_loss_training/(i+1)
     with open('train.csv', 'a') as csvfile:
-        fieldnames = ['epoch', 'data num', 'loss']
+        fieldnames = ['epoch', 'loss']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         # writer.writeheader()
-        writer.writerow({'epoch': str(epoch), 'data num': str(i), 'loss': str(running_loss_training)})
+        writer.writerow({'epoch': str(epoch), 'loss': str(running_loss_training)})
     running_loss = 0.0
     running_loss_test = 0.0
     for i, data in enumerate(testloader, 0):
@@ -344,11 +344,11 @@ for epoch in range(2):  # loop over the dataset multiple times
             running_loss = 0.0
     running_loss_test=running_loss_test/(i+1)
     with open('test.csv', 'a') as csvfile:
-        fieldnames = ['epoch', 'data num', 'loss']
+        fieldnames = ['epoch', 'loss']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        writer.writerow({'epoch': str(epoch), 'data num': str(i), 'loss': str(running_loss_test)})
+        writer.writerow({'epoch': str(epoch),'loss': str(running_loss_test)})
 print('Finished Training')
 torch.save(net.state_dict(),'netLun.pth')
 
