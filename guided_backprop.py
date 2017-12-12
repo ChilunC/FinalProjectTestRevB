@@ -66,11 +66,11 @@ class GuidedBackprop():
 
 
 if __name__ == '__main__':
-    for target_example in range(28):
+    for target_example in range(1):
         #target_example = 0  # Snake
         (original_image, prep_img, target_class, file_name_to_export, pretrained_model) =\
             get_params(target_example)
-        print(prep_img)
+        #print(prep_img)
         # Guided backprop
         GBP = GuidedBackprop(pretrained_model, prep_img, target_class)
         # Get gradients

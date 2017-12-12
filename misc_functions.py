@@ -172,7 +172,7 @@ def get_params(example_index):
     #                ['input_images/eel.JPEG', 390],
     #                ['input_images/bird.JPEG', 13]]
 
-    example_list = [['input_images/im0016.jpg', 0],
+    example_list = [['input_images/snake.jpg', 56],
                     ['input_images/im0016.jpg', 1],
                     ['input_images/im0016.jpg', 2],
                     ['input_images/im0016.jpg', 3],
@@ -199,27 +199,139 @@ def get_params(example_index):
                     ['input_images/im0016.jpg', 24],
                     ['input_images/im0016.jpg', 25],
                     ['input_images/im0016.jpg', 26],
-                    ['input_images/im0016.jpg', 27],]
+                    ['input_images/im0016.jpg', 27]]
+    example_list2 = [['input_images/im0401.jpg', 0],
+                    ['input_images/im0401.jpg', 1],
+                    ['input_images/im0401.jpg', 2],
+                    ['input_images/im0401.jpg', 3],
+                    ['input_images/im0401.jpg', 4],
+                    ['input_images/im0401.jpg', 5],
+                    ['input_images/im0401.jpg', 6],
+                    ['input_images/im0401.jpg', 7],
+                    ['input_images/im0401.jpg', 8],
+                    ['input_images/im0401.jpg', 9],
+                    ['input_images/im0401.jpg', 10],
+                    ['input_images/im0401.jpg', 11],
+                    ['input_images/im0401.jpg', 12],
+                    ['input_images/im0401.jpg', 13],
+                    ['input_images/im0401.jpg', 14],
+                    ['input_images/im0401.jpg', 15],
+                    ['input_images/im0401.jpg', 16],
+                    ['input_images/im0401.jpg', 17],
+                    ['input_images/im0401.jpg', 18],
+                    ['input_images/im0401.jpg', 19],
+                    ['input_images/im0401.jpg', 20],
+                    ['input_images/im0401.jpg', 21],
+                    ['input_images/im0401.jpg', 22],
+                    ['input_images/im0401.jpg', 23],
+                    ['input_images/im0401.jpg', 24],
+                    ['input_images/im0401.jpg', 25],
+                    ['input_images/im0401.jpg', 26],
+                    ['input_images/im0401.jpg', 27]]
+    example_list3 = [['input_images/im0811.jpg', 0],
+                    ['input_images/im0811.jpg', 1],
+                    ['input_images/im0811.jpg', 2],
+                    ['input_images/im0811.jpg', 3],
+                    ['input_images/im0811.jpg', 4],
+                    ['input_images/im0811.jpg', 5],
+                    ['input_images/im0811.jpg', 6],
+                    ['input_images/im0811.jpg', 7],
+                    ['input_images/im0811.jpg', 8],
+                    ['input_images/im0811.jpg', 9],
+                    ['input_images/im0811.jpg', 10],
+                    ['input_images/im0811.jpg', 11],
+                    ['input_images/im0811.jpg', 12],
+                    ['input_images/im0811.jpg', 13],
+                    ['input_images/im0811.jpg', 14],
+                    ['input_images/im0811.jpg', 15],
+                    ['input_images/im0811.jpg', 16],
+                    ['input_images/im0811.jpg', 17],
+                    ['input_images/im0811.jpg', 18],
+                    ['input_images/im0811.jpg', 19],
+                    ['input_images/im0811.jpg', 20],
+                    ['input_images/im0811.jpg', 21],
+                    ['input_images/im0811.jpg', 22],
+                    ['input_images/im0811.jpg', 23],
+                    ['input_images/im0811.jpg', 24],
+                    ['input_images/im0811.jpg', 25],
+                    ['input_images/im0811.jpg', 26],
+                    ['input_images/im0811.jpg', 27]]
+    example_list4 = [['input_images/im0860.jpg', 0],
+                    ['input_images/im0860.jpg', 1],
+                    ['input_images/im0860.jpg', 2],
+                    ['input_images/im0860.jpg', 3],
+                    ['input_images/im0860.jpg', 4],
+                    ['input_images/im0860.jpg', 5],
+                    ['input_images/im0860.jpg', 6],
+                    ['input_images/im0860.jpg', 7],
+                    ['input_images/im0860.jpg', 8],
+                    ['input_images/im0860.jpg', 9],
+                    ['input_images/im0860.jpg', 10],
+                    ['input_images/im0860.jpg', 11],
+                    ['input_images/im0860.jpg', 12],
+                    ['input_images/im0860.jpg', 13],
+                    ['input_images/im0860.jpg', 14],
+                    ['input_images/im0860.jpg', 15],
+                    ['input_images/im0860.jpg', 16],
+                    ['input_images/im0860.jpg', 17],
+                    ['input_images/im0860.jpg', 18],
+                    ['input_images/im0860.jpg', 19],
+                    ['input_images/im0860.jpg', 20],
+                    ['input_images/im0860.jpg', 21],
+                    ['input_images/im0860.jpg', 22],
+                    ['input_images/im0860.jpg', 23],
+                    ['input_images/im0860.jpg', 24],
+                    ['input_images/im0860.jpg', 25],
+                    ['input_images/im0860.jpg', 26],
+                    ['input_images/im0860.jpg', 27]]
+    example_list5 = [['input_images/im0117.jpg', 0],
+                     ['input_images/im0117.jpg', 1],
+                     ['input_images/im0117.jpg', 2],
+                     ['input_images/im0117.jpg', 3],
+                     ['input_images/im0117.jpg', 4],
+                     ['input_images/im0117.jpg', 5],
+                     ['input_images/im0117.jpg', 6],
+                     ['input_images/im0117.jpg', 7],
+                     ['input_images/im0117.jpg', 8],
+                     ['input_images/im0117.jpg', 9],
+                     ['input_images/im0117.jpg', 10],
+                     ['input_images/im0117.jpg', 11],
+                     ['input_images/im0117.jpg', 12],
+                     ['input_images/im0117.jpg', 13],
+                     ['input_images/im0117.jpg', 14],
+                     ['input_images/im0117.jpg', 15],
+                     ['input_images/im0117.jpg', 16],
+                     ['input_images/im0117.jpg', 17],
+                     ['input_images/im0117.jpg', 18],
+                     ['input_images/im0117.jpg', 19],
+                     ['input_images/im0117.jpg', 20],
+                     ['input_images/im0117.jpg', 21],
+                     ['input_images/im0117.jpg', 22],
+                     ['input_images/im0117.jpg', 23],
+                     ['input_images/im0117.jpg', 24],
+                     ['input_images/im0117.jpg', 25],
+                     ['input_images/im0117.jpg', 26],
+                     ['input_images/im0117.jpg', 27]]
     selected_example = example_index
     img_path = example_list[selected_example][0]
     target_class = example_list[selected_example][1]
     file_name_to_export = img_path[img_path.rfind('/')+1:img_path.rfind('.')]
     # Read image
-    print(img_path)
+    #print(img_path)
     original_image = cv2.imread(img_path, 1)
     # Process image
     prep_img = preprocess_image(original_image)
     # Define model
 
-    pretrained_model = models.vgg19()#Net()
-    mod = list(pretrained_model.classifier.children())
-    mod.pop()
-    mod.append(torch.nn.Linear(4096, 28))
-    new_classifier = torch.nn.Sequential(*mod)
-    pretrained_model.classifier = new_classifier
+    pretrained_model = models.vgg19(pretrained=True)#Net()
+    #mod = list(pretrained_model.classifier.children())
+    #mod.pop()
+    #mod.append(torch.nn.Linear(4096, 28))
+    #new_classifier = torch.nn.Sequential(*mod)
+    #pretrained_model.classifier = new_classifier
 
     #pretrained_model.load_state_dict(torch.load('net.pth'))  # models.vgg19(pretrained=True)
-    pretrained_model.load_state_dict(torch.load('net.pth', map_location=lambda storage, loc: storage))
+    #pretrained_model.load_state_dict(torch.load('net.pth', map_location=lambda storage, loc: storage))
     #print(pretrained_model)
     #pretrained_model= models.vgg19(pretrained=True)
     #pretrained_model = models.resnet18(pretrained=True)

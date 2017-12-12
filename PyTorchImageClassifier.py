@@ -12,6 +12,8 @@ from PIL import Image
 from PyTModel import *
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
+
 
 class Rescale(object):
     """Rescale the image in a sample to a given size.
@@ -131,12 +133,12 @@ class FaceLandmarksDataset(Dataset):
         #print(landmarks.shape)
         #landmarks.astype(int)
         #sample = {'image': image, 'landmarks': landmarks}
-        print(image.shape)
+        #print(image.shape)
         sample = image,landmarks
         if self.transform:
             image = self.transform(image)
         #sample = (image, landmarks)
-        print(image.shape)
+        #print(image.shape)
         return image, landmarks #sample
 
 #transform image to fit the VGG19 model
@@ -181,9 +183,9 @@ face_dataset_test = FaceLandmarksDataset(csv_file='jointsTest.csv',
                                                #ToTensor()
                                            )
 
-trainloader = DataLoader(face_dataset_train, batch_size=4,
+trainloader = DataLoader(face_dataset_train, batch_size=1,
                         shuffle=True, num_workers=2)
-testloader = DataLoader(face_dataset_test, batch_size=4,
+testloader = DataLoader(face_dataset_test, batch_size=1,
                         shuffle=True, num_workers=2)
 
 
@@ -202,23 +204,23 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 
-net = NetFeat()
+#net = NetFeat()
 
 
 #import a pretrained VGG19 model and replace the last layer with a custom layer
-#net = torchvision.models.vgg19(pretrained=True)
-#for param in net.features.parameters():
-#    param.requires_grad = False
-#for param in net.classifier.parameters():
-#    param.requires_grad=False
+net = torchvision.models.vgg19(pretrained=True)
+for param in net.features.parameters():
+    param.requires_grad = False
+for param in net.classifier.parameters():
+    param.requires_grad=False
     # Replace the last fully-connected layer
     # Parameters of newly constructed modules have requires_grad=True by default
-#mod = list(net.classifier.children())
-#mod.pop()
+mod = list(net.classifier.children())
+mod.pop()
 
-#mod.append(torch.nn.Linear(4096,28))
-#new_classifier = torch.nn.Sequential(*mod)
-#net.classifier = new_classifier
+mod.append(torch.nn.Linear(4096,28))
+new_classifier = torch.nn.Sequential(*mod)
+net.classifier = new_classifier
 if torch.cuda.is_available():
     net.cuda()
 #net.features[-1] = nn.Linear(4096, 28) # assuming that the fc7 layer has 512 neurons, otherwise change it
@@ -246,6 +248,7 @@ optimizer = optim.SGD(net.classifier[-1].parameters(), lr=0.0001, momentum=0.9)
 
 for epoch in range(2):  # loop over the dataset multiple times
 
+    running_loss_training = 0.0
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs
@@ -274,20 +277,78 @@ for epoch in range(2):  # loop over the dataset multiple times
 
         # forward + backward + optimize
         outputs = net(inputs)
-        print(outputs)
+        #print(outputs)
         loss = 0
+        #print(len(outputs))
         for o in range(len(outputs)):
-            loss += criterion(outputs[o], labels[o].type('torch.FloatTensor'))
+            #print(outputs[o][0])
+            #outEuc = [outputs[2*o]]
+            for euc in range(14):
+                #for poi in range(2):
+                #print(outputs[o][2*euc])
+                #ouEuc = torch.FloatTensor([outputs[o][2*euc].data[0], outputs[o][2*euc+1].data[0]])
+                #oulab = torch.FloatTensor([labels[o][2*euc].data[0],labels[o][2*euc+1].data[0]])
+                loss += torch.sqrt(criterion(outputs[o][2*euc:2*euc+1], labels[o][2*euc:2*euc+1].type('torch.FloatTensor')))
         loss.backward()
         optimizer.step()
 
+
+            #writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
+            #writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
         # print statistics
         running_loss += loss.data[0]
+        running_loss_training += loss.data[0]
         if i % 200 == 0:    # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
+                (epoch + 1, i + 1, running_loss / 200))
+            #running_loss_training += running_loss
             running_loss = 0.0
+    running_loss_training = running_loss_training/(i+1)
+    with open('train.csv', 'a') as csvfile:
+        fieldnames = ['epoch', 'data num', 'loss']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        # writer.writeheader()
+        writer.writerow({'epoch': str(epoch), 'data num': str(i), 'loss': str(running_loss_training)})
+    running_loss = 0.0
+    running_loss_test = 0.0
+    for i, data in enumerate(testloader, 0):
+        # get the inputs
+        inputs, labels = data
 
+        # wrap them in Variable
+        if torch.cuda.is_available():
+            inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+        else:
+            inputs, labels = Variable(inputs), Variable(labels)
+
+        # zero the parameter gradients
+        optimizer.zero_grad()
+
+        # forward + backward + optimize
+        outputs = net(inputs)
+        loss = 0
+        for o in range(len(outputs)):
+
+            for euc in range(14):
+                loss += torch.sqrt(criterion(outputs[o][2 * euc:2 * euc + 1],
+                                             labels[o][2 * euc:2 * euc + 1].type('torch.FloatTensor')))
+        #loss.backward()
+        #optimizer.step()
+
+        # print statistics
+        running_loss += loss.data[0]
+        running_loss_test += loss.data[0]
+        if i % 200 == 0:  # print every 2000 mini-batches
+            print('[%d, %5d] loss: %.3f' %
+                  (epoch + 1, i + 1, running_loss / 200))
+            running_loss = 0.0
+    running_loss_test=running_loss_test/(i+1)
+    with open('test.csv', 'a') as csvfile:
+        fieldnames = ['epoch', 'data num', 'loss']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        writer.writerow({'epoch': str(epoch), 'data num': str(i), 'loss': str(running_loss_test)})
 print('Finished Training')
 torch.save(net.state_dict(),'netLun.pth')
 

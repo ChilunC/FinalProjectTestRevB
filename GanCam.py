@@ -36,9 +36,9 @@ class CamExtractor():
                 x.register_hook(self.save_gradient)
                 conv_output = x  # Save the convolution output on that layer
                 #print("Hmmm...")
-        for module_pos, module in self.model.classifier._modules.items():
-            print(module_pos)
-            print(module)
+        #for module_pos, module in self.model.classifier._modules.items():
+        #    print(module_pos)
+        #    print(module)
         #print("final")
         #print(int(module_pos))
         return conv_output, x
@@ -101,9 +101,10 @@ class GradCam():
 if __name__ == '__main__':
     # Get params
     #target_example = 0  # Snake
-    for target_example in range(1):
+    for target_example in range(28):
         (original_image, prep_img, target_class, file_name_to_export, pretrained_model) =\
             get_params(target_example)
+        #1,19,25,35
         # Grad cam
         grad_cam = GradCam(pretrained_model, target_layer=35)
         # Generate cam mask
